@@ -1,5 +1,6 @@
 import pygame
 from player import Player
+from room import Room
 
 class Game:
     def __init__(self):
@@ -14,11 +15,17 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
 
-        # Création du joueur au centre de l'écran
+        # Création du joueur au centre
         self.player = Player(
             x=self.screen_width // 2 - 25,
             y=self.screen_height // 2 - 25
         )
+
+        # Création d'une salle
+        self.room = Room(self.screen_width, self.screen_height)
+        # Ajouter quelques murs pour tester
+        self.room.add_wall(100, 100, 200, 20)
+        self.room.add_wall(400, 300, 20, 200)
 
     def run(self):
         while self.running:
@@ -35,10 +42,26 @@ class Game:
                 self.running = False
 
     def update(self):
-        self.player.handle_input()  # gestion des déplacements
+        self.player.handle_input()
+        self.handle_collisions()
+
+    def handle_collisions(self):
+        # Simple collision avec les murs de la salle
+        for wall in self.room.walls:
+            if self.player.rect.colliderect(wall):
+                # très simple : bloque le joueur en arrière
+                if self.player.rect.right > wall.left and self.player.rect.left < wall.left:
+                    self.player.rect.right = wall.left
+                if self.player.rect.left < wall.right and self.player.rect.right > wall.right:
+                    self.player.rect.left = wall.right
+                if self.player.rect.bottom > wall.top and self.player.rect.top < wall.top:
+                    self.player.rect.bottom = wall.top
+                if self.player.rect.top < wall.bottom and self.player.rect.bottom > wall.bottom:
+                    self.player.rect.top = wall.bottom
 
     def draw(self):
-        self.screen.fill((20, 30, 60))  # fond bleu foncé
-        self.player.draw(self.screen)    # dessine le joueur
+        self.room.draw(self.screen)
+        self.player.draw(self.screen)
         pygame.display.flip()
+
 
