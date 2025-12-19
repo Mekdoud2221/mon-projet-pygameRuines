@@ -2,6 +2,7 @@ import pygame
 from player import Player
 from room import Room
 from puzzle import Puzzle
+from artifact import Artifact
 
 class Game:
     def __init__(self):
@@ -30,6 +31,13 @@ class Game:
         # Puzzle
         self.puzzle = Puzzle(600, 400)
 
+        # Artefacts
+        self.artifacts = [
+            Artifact(200, 500, name="Amulette"),
+            Artifact(700, 100, name="Masque ancien")
+        ]
+        self.inventory = []  # Liste des artefacts collectés
+
     def run(self):
         while self.running:
             self.handle_events()
@@ -48,6 +56,8 @@ class Game:
         self.player.handle_input()
         self.handle_collisions()
         self.puzzle.interact(self.player.rect)
+        for artifact in self.artifacts:
+            artifact.collect(self.player.rect, self.inventory)
 
     def handle_collisions(self):
         for wall in self.room.walls:
@@ -64,7 +74,7 @@ class Game:
     def draw(self):
         self.room.draw(self.screen)
         self.puzzle.draw(self.screen)
+        for artifact in self.artifacts:
+            artifact.draw(self.screen)
         self.player.draw(self.screen)
         pygame.display.flip()
-
-
